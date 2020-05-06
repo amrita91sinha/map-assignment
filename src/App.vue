@@ -46,11 +46,11 @@ export default {
     Assignment,
     barGraph
   },
-  // computed: {
-  //   dataJSON() {
-  //     return store.state.dataJSON;
-  //   }
-  // },
+  computed: {
+    dataJSON() {
+      return store.state.dataJSON;
+    }
+  },
   data() {
     return {
       store: store
