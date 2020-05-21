@@ -4,6 +4,7 @@
     <mapbox
       access-token="pk.eyJ1IjoiYW1yaXRhOTFzaW5oYSIsImEiOiJjazk2cnNtbHYwNWt5M2xtZ2Zkcnd5bzBjIn0.r-vthwmTHDI4IwUIQIlYwQ"
       :map-options="{
+        container: 'map1',  
         style: 'mapbox://styles/mapbox/streets-v11',
         center: [77.600072999999995,
               12.992746],
@@ -13,9 +14,9 @@
         show: true,
         position: 'top-left',
       }"
-      @map-load="loaded"
-      @map-click:points="clicked(e)"
-     
+      @map-load="loadedPin"
+      @map-click="mapClicked"
+      
     />
   </div>
 </template>
@@ -29,7 +30,7 @@ import pincode from "../assets/pincode.json";
 console.log(localitydata.features[0].attributes);
 
 export default {
-  name: "Assignment",
+  name: "Assignmentpincode",
   components: { Mapbox },
   data() {
     return {
@@ -45,21 +46,12 @@ export default {
     requiredData: state => state.dataJSON,
   }),
   methods: {
-    JSONData(buttonID) {
-      console.log("stotre" + store.state.dataJSON);
-      if (buttonID == "Locality") {
-        // this.requiredData = localitydata;
-        //   store.commit("localityJSONData");
-      } else {
-        //  store.commit("pincodeJSONData");
-      }
-    },
-    loaded(map) {
+       loadedPin(map1) {
       // let self = this;
       //const localityData = 
       console.log({ a: this.requiredData }, "localityData");
       console.log({ state: this.requiredData }, "state log");
-      const test = this.requiredData;
+      const pincodeData = this.requiredData;
       const update=this.$store;
       //this.globalLayerId = 0;
       for (var i = 0; i <this.requiredData.features.length; i++) {
@@ -67,7 +59,7 @@ export default {
           .rings[0];
         var idLayer = this.requiredData.features[i].attributes.FID.toString(); //'id'+[i];
         console.log({ idLayer, coordinatesPolygon });
-        map.addSource(idLayer, {
+        map1.addSource(idLayer, {
           type: "geojson",
           data: {
             type: "Feature",
@@ -77,7 +69,7 @@ export default {
             }
           }
         });
-        map.addLayer({
+        map1.addLayer({
           id: idLayer,
           type: "fill",
           source: idLayer, //required field contrary to that mentined in API docs
@@ -92,38 +84,20 @@ export default {
         // location of the click, with description HTML from its properties.
         // const attrs = localityData.features[i].attributes;
         // console.log({ attrs });
-        map.on("click", idLayer, function(e) {
-          console.log(e);
-
-          self.globalLayerId = e.features[0].layer.id;
-          console.log(
-            { test: self, test2: self.globalLayerId },
-            "checking globalLayerId"
-          );
-          if (
-            test.features[parseInt(e.features[0].layer.id)].attributes.pincode
-          ) {
+        map1.on("click", idLayer, function(e) {
             new mapboxgl.Popup()
               .setLngLat(e.lngLat)
               .setHTML(
-                <div>
-                  pincode:
-                  test.features[parseInt(e.features[0].layer.id)].attributes
+                pincodeData.features[parseInt(e.features[0].layer.id)].attributes
                   .pincode
-                </div>
               )
-              .addTo(map);
-          } else {
-            new mapboxgl.Popup()
-              .setLngLat(e.lngLat)
-              .setHTML(
-                test.features[parseInt(e.features[0].layer.id)].attributes
-                  .population
-              )
-              .addTo(map);
-              update.commit("clickedlocality",localitydata.features[parseInt(e.features[0].layer.id)].attributes
-                  .locality);
-          }
+              .addTo(map1);
+              update.commit("clickedPincode",pincodeData.features[parseInt(e.features[0].layer.id)].attributes
+                  .pincode);
+              update.commit("clickedPincodeFID",pincodeData.features[parseInt(e.features[0].layer.id)].attributes
+                  .FID);
+                  
+          
         });
         // create DOM element for the marker
         var el = document.createElement("div");
@@ -133,19 +107,20 @@ export default {
           alert("Marker Clicked.");
         });
         // Change the cursor to a pointer when the mouse is over the states layer.
-        map.on("mouseenter", idLayer, function() {
-          map.getCanvas().style.cursor = "pointer";
+        map1.on("mouseenter", idLayer, function() {
+          map1.getCanvas().style.cursor = "pointer";
         });
 
         // Change it back to a pointer when it leaves.
-        map.on("mouseleave", idLayer, function() {
-          map.getCanvas().style.cursor = "";
+        map1.on("mouseleave", idLayer, function() {
+          map1.getCanvas().style.cursor = "";
         });
       } //end for
     },
-    clicked(e) {
-      this.$emit("clicked", idLayer);
-    }
+   mapClicked() {
+      //alert('Map Clicked!');
+      //this.$emit("pincodeSelected");
+    },
   }
 };
 </script>
@@ -170,7 +145,7 @@ li {
 a {
   color: #42b983;
 }
-#map {
+#map1 {
   flex: 1;
 
   width: 100%;

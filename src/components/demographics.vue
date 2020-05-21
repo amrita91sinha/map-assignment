@@ -1,9 +1,9 @@
 <template>
-  <div id="barGraph">
-    <div v-show="noExpenditureData">No Data Available
-      Expenditure for {{getPincode}}</div>
-    <div id="content">
-      <canvas ref="chart"></canvas>
+  <div id="pieGraph">
+    <div v-show="noMonthlyIncomeData">No Data Available
+      MonthlyIncome Distribution for {{getLocality}}</div>
+    <div id="content1">
+      <canvas ref="chart1"></canvas>
     </div>
   </div>
 </template>
@@ -14,27 +14,29 @@
 import Chart from "chart.js";
 import expenditureData from "../assets/expenditure.json";
 //import { mapGetters } from 'vuex';
-//import expenditureData from "../assets/expenditure.json";
+import incomeData from "../assets/income.json";
+//import localitydata from "../assets/locality.json";
 console.log(expenditureData);
+console.log(incomeData);
 export default {
-  name: "barGraph",
+  name: "pieGraph",
   data() {
     return {
      barGraphData:[],
      barGraphDataArray:[],
      barGraphDataLabel:[],
-     expenditureDataBarGraph:null,
-     noExpenditureData:false
+     monthlyIncomeDataBarGraph:null,
+     noMonthlyIncomeData:false
     };
   },
   computed:{
-    getPincode(){
-         return this.$store.getters.getPincode
+    getLocality(){
+         return this.$store.getters.getLocality
     }
 
   },//:mapGetters(['getPincode']),//getter works too
   watch:{
-      getPincode(){
+      getLocality(){
          //return this.$store.getters.getPincode
          this.drawGraph();
     }
@@ -54,11 +56,11 @@ export default {
        
 },
 drawGraph(){
-  if(this.getPincode!="undefined"){
-    var code=this.$store.state.pincode;
-    var barGraphData1=  expenditureData.filter(
-    function(expenditureData) {
-      return expenditureData.pincode == code
+  if(this.getLocality!="undefined"){
+    var code=this.$store.state.locality;
+    var barGraphData1=  incomeData.filter(
+    function(incomeData) {
+      return incomeData.locality == code
     }
   );
   console.log(code);
@@ -71,21 +73,21 @@ drawGraph(){
   //   this.barGraphDataArray.push(barGraphData[0][keys[i]]);
   // }
   if(barGraphData1.length==0){
-    this.expenditureDataBarGraph.destroy();
-    this.noExpenditureData=true;
+    this.monthlyIncomeDataBarGraph.destroy();
+    this.noMonthlyIncomeData=true;
   }
   else{
-    this.noExpenditureData=false;
-  this.barGraphDataArray=Object.values(barGraphData1[0]);
-  this.barGraphDataArray.pop();
-   this.barGraphDataLabel=Object.keys(barGraphData1[0]);
-  this.barGraphDataLabel.pop();
+    this.noMonthlyIncomeData=false;
+  this.barGraphDataArray=barGraphData1[0].income;
+  //this.barGraphDataArray.pop();
+  // this.barGraphDataLabel=barGraphData1[0]);
+ // this.barGraphDataLabel.pop();
   console.log({ barGraphData, arr: this.barGraphDataArray }, 'testdata');
   
-   var chart = this.$refs.chart;
+   var chart = this.$refs.chart1;
     var ctx = chart.getContext("2d");
   var barGraphData=this.barGraphDataArray;
-  var barGraphLabels=this.barGraphDataLabel;
+  //var barGraphLabels=this.barGraphDataLabel;
    // var code= this.$store.pincode;
 //console.log(barGraphData);
 // var found =  function getDataByPincode(code) {
@@ -96,31 +98,28 @@ drawGraph(){
 //   );
 // }
     //this/.$on("clicked", FID);
-  this.expenditureDataBarGraph =  new Chart(ctx, {
-      type: "bar",
+  this.monthlyIncomeDataBarGraph =  new Chart(ctx, {
+      type: 'pie',
       data: {
-        labels: barGraphLabels,
+        labels: ['income'],
         datasets: [
           {
-            label: "Expenditure Data",
+           // label: code,
+           fill:true,
             backgroundColor:'#7651da', // Blue
-            data: barGraphData,
-            borderWidth: 1,
+            data: [barGraphData],
+            //borderWidth: 1,
           }
         ]
       },
       options: {
-        scales: {
-          yAxes: [
-            {
-              ticks: {
-                beginAtZero: true
-              }
-            }
-          ]
-        }
+      title: {
+        display: true,
+        //text: 'Predicted world population (millions) in 2050'
       }
-    });
+    }
+});
+   
 }
   }
   }
@@ -137,7 +136,7 @@ drawGraph(){
   color: #2c3e50;
   margin-top: 60px;
 }
-#content {
+#content1 {
   margin: auto;
   width: 1024px;
   background-color: #ffffff;

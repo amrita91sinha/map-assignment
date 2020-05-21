@@ -19,13 +19,19 @@
           <!-- <Assignment msg="Welcome to Your Vue.js App" /> -->
           <bar-graph></bar-graph>
         </div>
-        <div class="colContainer">
+        <div class="colContainer"  v-if="showlocality">
           <Assignment msg="Welcome to Your Vue.js App" />
+          <!-- <Assignmentpincode v-show="showPincode"/> -->
+        </div>
+        <div class="colContainer" v-else>
+          <!-- <Assignment v-show="showlocality" msg="Welcome to Your Vue.js App" /> -->
+          <Assignmentpincode />
         </div>
       </div>
       <div class="rowContainer">
         <div class="colContainer">
           <!-- <Assignment msg="Welcome to Your Vue.js App" /> -->
+          <demographics></demographics>
         </div>
         <div class="colContainer">
           <!-- <Assignment msg="Welcome to Your Vue.js App" /> -->
@@ -38,35 +44,45 @@
 <script>
 import Assignment from "./components/Assignment.vue";
 import barGraph from "./components/barGraph.vue";
+import Assignmentpincode from "./components/Assignmentpincode.vue";
+import demographics from "./components/demographics.vue";
 
 export default {
   name: "App",
-  store,
+  //store,
   components: {
     Assignment,
-    barGraph
+    barGraph,
+    Assignmentpincode,
+    demographics
   },
-  computed: {
-    dataJSON() {
-      return store.state.dataJSON;
-    }
-  },
+  // computed: {
+  //   dataJSON() {
+  //     return this.$store.state.dataJSON;
+  //   }
+  // },
   data() {
     return {
-      store: store
+      //store: store
+      showlocality:true,
+      showPincode:false
     };
   },
   methods: {
     toggleButton() {
       console.log(document.getElementById("toggleData").innerHTML);
       if (document.getElementById("toggleData").innerHTML == "Locality") {
+        this.showlocality=false;
+        this.showPincode=true;
         document.getElementById("toggleData").innerHTML = "Pincode";
         // this.$emit("toggleJSONData", "Pincode");
-        store.commit("pincodeJSONData");
+        this.$store.commit("pincodeJSONData");
       } else {
         document.getElementById("toggleData").innerHTML = "Locality";
+        this.showPincode=false;
+        this.showlocality=true;
         // this.$emit("toggleJSONData", "Locality");
-        store.commit("localityJSONData");
+        this.$store.commit("localityJSONData");
       }
     }
   }
